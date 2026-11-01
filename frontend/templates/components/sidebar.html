@@ -1,0 +1,98 @@
+<aside class="sidebar">
+
+    <div class="sidebar-header">
+
+        <img src="{{ url_for('static', filename='images/logo/logo.png') }}"
+             alt="Logo"
+             class="sidebar-logo">
+
+        <div>
+
+            <h2>AgriVisionAI</h2>
+
+            <p>Smart Farming</p>
+
+        </div>
+
+    </div>
+
+    <ul class="sidebar-menu">
+
+        <li class="active">
+            <a href="/dashboard">
+                <i class="fa-solid fa-house"></i>
+                <span>Overview</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/scan">
+                <i class="fa-solid fa-seedling"></i>
+                <span>Detect Disease</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/history">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Prediction History</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/weather">
+                <i class="fa-solid fa-cloud-sun"></i>
+                <span>Weather</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/chatbot">
+                <i class="fa-solid fa-robot"></i>
+                <span>AI Assistant</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/market">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Market Prices</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/schemes">
+                <i class="fa-solid fa-landmark"></i>
+                <span>Govt. Schemes</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/profile">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="/settings">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+
+    </ul>
+
+    <div class="sidebar-footer">
+
+        <a href="/logout" class="logout-btn">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+            Logout
+
+        </a>
+
+    </div>
+
+</aside>

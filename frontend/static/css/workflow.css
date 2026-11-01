@@ -1,0 +1,99 @@
+/* ==========================
+      WORKFLOW
+========================== */
+
+.workflow{
+
+padding:130px 0;
+
+background:white;
+
+}
+
+.workflow-container{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-top:80px;
+
+}
+
+.step{
+
+width:190px;
+
+text-align:center;
+
+}
+
+.circle{
+
+width:90px;
+
+height:90px;
+
+margin:auto;
+
+border-radius:50%;
+
+background:linear-gradient(135deg,#16A34A,#84CC16);
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+color:white;
+
+font-size:34px;
+
+box-shadow:0 20px 45px rgba(22,163,74,.25);
+
+transition:.4s;
+
+}
+
+.circle:hover{
+
+transform:translateY(-10px) scale(1.1);
+
+}
+
+.line{
+
+height:5px;
+
+flex:1;
+
+margin:0 10px;
+
+background:linear-gradient(90deg,#16A34A,#84CC16);
+
+border-radius:50px;
+
+margin-top:-60px;
+
+}
+
+.step h3{
+
+margin-top:25px;
+
+font-size:22px;
+
+}
+
+.step p{
+
+margin-top:12px;
+
+color:#64748B;
+
+line-height:1.7;
+
+}

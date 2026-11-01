@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AgriVisionAI Dashboard</title>
+
+
+    <!-- Google Font -->
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+
+    <!-- Font Awesome -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+    <!-- Dashboard CSS -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/sidebar.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/topbar.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/cards.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/widgets.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/scan.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="dashboard">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    {% include "components/sidebar.html" %}
+
+
+    <!-- =====================================================
+         MAIN DASHBOARD
+    ====================================================== -->
+
+    <div class="dashboard-main">
+
+
+        <!-- TOPBAR -->
+
+        {% include "components/topbar.html" %}
+
+
+        <!-- CONTENT -->
+
+        <div class="dashboard-content">
+
+            {% block dashboard_content %}
+
+            {% endblock %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     SCAN JAVASCRIPT
+========================================================= -->
+
+<script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+
+
+<!-- =========================================================
+     DETECT DISEASE NAVIGATION FIX
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const sidebarLinks =
+            document.querySelectorAll(
+                ".dashboard a, .sidebar a, a"
+            );
+
+
+        sidebarLinks.forEach(
+            function (link) {
+
+                const text =
+                    link.textContent
+                        .trim()
+                        .replace(/\s+/g, " ")
+                        .toLowerCase();
+
+
+                if (
+                    text.includes(
+                        "detect disease"
+                    )
+                ) {
+
+                    link.href =
+                        "/scan";
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

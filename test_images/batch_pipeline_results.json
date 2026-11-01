@@ -1,0 +1,95 @@
+[
+    {
+        "image": "IMG_20211106_140014 (Custom).jpg",
+        "leaves_detected": 1,
+        "results": [
+            {
+                "leaf": 1,
+                "crop": "Mango",
+                "disease": "Bacterial Canker",
+                "disease_confidence": 99.98,
+                "diseased_area_percent": 19.65,
+                "severity": "Moderate",
+                "yolo_confidence": 82.37
+            }
+        ]
+    },
+    {
+        "image": "Bract Mosaic Virus Disease (10).jpg",
+        "leaves_detected": 3,
+        "results": [
+            {
+                "leaf": 1,
+                "crop": "Banana",
+                "disease": "Bract Mosaic Virus",
+                "disease_confidence": 99.93,
+                "diseased_area_percent": 28.89,
+                "severity": "Moderate",
+                "yolo_confidence": 52.34
+            },
+            {
+                "leaf": 2,
+                "crop": "Banana",
+                "disease": "Bract Mosaic Virus",
+                "disease_confidence": 100.0,
+                "diseased_area_percent": 28.83,
+                "severity": "Moderate",
+                "yolo_confidence": 52.14
+            },
+            {
+                "leaf": 3,
+                "crop": "Banana",
+                "disease": "Bract Mosaic Virus",
+                "disease_confidence": 100.0,
+                "diseased_area_percent": 20.95,
+                "severity": "Moderate",
+                "yolo_confidence": 30.65
+            }
+        ]
+    },
+    {
+        "image": "fus21.jpg",
+        "leaves_detected": 1,
+        "results": [
+            {
+                "leaf": 1,
+                "crop": "Wheat",
+                "disease": "Leaf Rust",
+                "disease_confidence": 98.01,
+                "diseased_area_percent": 19.92,
+                "severity": "Moderate",
+                "yolo_confidence": 44.83
+            }
+        ]
+    },
+    {
+        "image": "test.jpg",
+        "leaves_detected": 1,
+        "results": [
+            {
+                "leaf": 1,
+                "crop": "Cucumber",
+                "disease": "Gummy Stem Blight",
+                "disease_confidence": 98.96,
+                "diseased_area_percent": 18.41,
+                "severity": "Moderate",
+                "yolo_confidence": 77.77
+            }
+        ]
+    },
+    {
+        "image": "58.jpg",
+        "leaves_detected": 1,
+        "results": [
+            {
+                "leaf": 1,
+                "crop": "Onion",
+                "disease": "Botrytis Leaf Blight",
+                "disease_confidence": 99.92,
+                "diseased_area_percent": 21.4,
+                "severity": "Moderate",
+                "yolo_confidence": 88.96
+            }
+        ]
+    }
+]

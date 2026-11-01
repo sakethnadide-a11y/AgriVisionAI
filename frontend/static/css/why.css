@@ -1,0 +1,115 @@
+/*=============================
+        WHY SECTION
+=============================*/
+
+.why{
+
+padding:140px 0;
+
+background:white;
+
+}
+
+.why-container{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+align-items:center;
+
+gap:90px;
+
+}
+
+.why-image img{
+
+width:100%;
+
+border-radius:28px;
+
+box-shadow:0 25px 60px rgba(0,0,0,.08);
+
+transition:.4s;
+
+}
+
+.why-image img:hover{
+
+transform:translateY(-10px);
+
+}
+
+.section-tag{
+
+display:inline-block;
+
+padding:10px 20px;
+
+background:#ECFDF5;
+
+border-radius:40px;
+
+color:#16A34A;
+
+font-weight:600;
+
+margin-bottom:20px;
+
+}
+
+.why-content h2{
+
+font-size:48px;
+
+line-height:1.2;
+
+margin-bottom:25px;
+
+color:#0F172A;
+
+}
+
+.why-content p{
+
+font-size:18px;
+
+line-height:1.8;
+
+color:#64748B;
+
+margin-bottom:40px;
+
+}
+
+.why-list{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:25px;
+
+}
+
+.why-item{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+font-size:18px;
+
+font-weight:600;
+
+}
+
+.why-item i{
+
+color:#16A34A;
+
+font-size:22px;
+
+}

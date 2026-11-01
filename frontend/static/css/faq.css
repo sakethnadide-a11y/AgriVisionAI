@@ -1,0 +1,57 @@
+/*=========================
+        FAQ
+=========================*/
+
+.faq{
+
+padding:120px 0;
+
+background:#F8FAFC;
+
+}
+
+.faq-container{
+
+max-width:900px;
+
+margin:auto;
+
+margin-top:60px;
+
+}
+
+.faq-container details{
+
+background:white;
+
+margin-bottom:20px;
+
+padding:25px;
+
+border-radius:18px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.05);
+
+cursor:pointer;
+
+}
+
+.faq-container summary{
+
+font-size:20px;
+
+font-weight:600;
+
+list-style:none;
+
+}
+
+.faq-container p{
+
+margin-top:20px;
+
+line-height:1.8;
+
+color:#64748B;
+
+}

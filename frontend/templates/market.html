@@ -1,0 +1,1123 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+
+<style>
+    .market-page {
+        padding: 10px 0 30px;
+    }
+
+    .market-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        gap: 20px;
+    }
+
+    .market-header h1 {
+        margin: 0;
+        font-size: 32px;
+        color: #111827;
+    }
+
+    .market-header p {
+        margin: 7px 0 0;
+        color: #6b7280;
+    }
+
+    .refresh-btn {
+        background: #5424a8;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .controls-card,
+    .market-table-card {
+        background: white;
+        border-radius: 18px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+    }
+
+    .controls-card h2,
+    .market-table-card h2 {
+        margin: 0 0 8px;
+        color: #111827;
+    }
+
+    .controls-card > p {
+        margin: 0 0 22px;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #374151;
+    }
+
+    .filter-group select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 13px 12px;
+        border: 1px solid #dbe1e8;
+        border-radius: 10px;
+        background: white;
+        color: #111827;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .filter-group select:focus {
+        border-color: #5424a8;
+    }
+
+    .market-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+    }
+
+    .search-btn {
+        background: #16803c;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .clear-btn {
+        background: #f3f4f6;
+        color: #374151;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .market-status {
+        display: none;
+        padding: 13px 15px;
+        border-radius: 10px;
+        margin-top: 18px;
+        font-size: 14px;
+    }
+
+    .market-status.loading {
+        display: block;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .market-status.error {
+        display: block;
+        background: #fff1f2;
+        color: #be123c;
+    }
+
+    .market-status.success {
+        display: block;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .market-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0 0 20px;
+    }
+
+    .summary-pill {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        padding: 7px 11px;
+        font-size: 12px;
+        color: #4b5563;
+    }
+
+    .market-table-wrap {
+        overflow-x: auto;
+    }
+
+    .market-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .market-table th {
+        text-align: left;
+        background: #f5f7fa;
+        padding: 15px;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .market-table td {
+        padding: 16px 15px;
+        border-bottom: 1px solid #edf0f2;
+        color: #374151;
+        font-size: 14px;
+    }
+
+    .crop-name {
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .modal-price {
+        font-weight: 800;
+        color: #16803c;
+    }
+
+    .price-secondary {
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .date-text {
+        white-space: nowrap;
+        color: #6b7280;
+    }
+
+    .empty-market {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6b7280;
+    }
+
+    .empty-market-icon {
+        font-size: 55px;
+        margin-bottom: 15px;
+    }
+
+    .empty-market h2 {
+        color: #111827;
+        margin-bottom: 10px;
+    }
+
+    .table-search {
+        margin-bottom: 20px;
+    }
+
+    .table-search input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 14px 18px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .table-search input:focus {
+        border-color: #5424a8;
+    }
+
+    .source-note {
+        margin-top: 18px;
+        font-size: 12px;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    .loading-row {
+        text-align: center;
+        padding: 45px 20px;
+        color: #6b7280;
+    }
+
+    @media (max-width: 1000px) {
+        .filter-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 700px) {
+        .market-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .controls-card,
+        .market-table-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="market-page">
+
+    <div class="market-header">
+        <div>
+            <h1>Market Prices</h1>
+            <p>
+                Check daily mandi prices for different states,
+                districts, markets and commodities.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="refresh-btn"
+            id="refreshBtn"
+        >
+            ↻ Refresh
+        </button>
+    </div>
+
+    <div class="controls-card">
+
+        <h2>📍 Select Market Location</h2>
+
+        <p>
+            Weather uses your current location separately.
+            Market prices are based on the mandi location you select here.
+        </p>
+
+        <div class="filter-grid">
+
+            <div class="filter-group">
+                <label for="stateSelect">State</label>
+
+                <select id="stateSelect">
+                    {% for state in market_states %}
+                        <option
+                            value="{{ state }}"
+                            {% if state|lower == market_state|lower %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ state }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="districtSelect">District</label>
+
+                <select id="districtSelect">
+                    <option value="">All Districts</option>
+
+                    {% if market_district %}
+                        <option value="{{ market_district }}" selected>
+                            {{ market_district }}
+                        </option>
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="marketSelect">Market / Mandi</label>
+
+                <select id="marketSelect">
+                    <option value="">All Markets</option>
+
+                    {% if market_name %}
+                        <option value="{{ market_name }}" selected>
+                            {{ market_name }}
+                        </option>
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="commoditySelect">Commodity</label>
+
+                <select id="commoditySelect">
+                    <option value="">All Commodities</option>
+
+                    {% if market_commodity %}
+                        <option value="{{ market_commodity }}" selected>
+                            {{ market_commodity }}
+                        </option>
+                    {% endif %}
+                </select>
+            </div>
+
+        </div>
+
+        <div class="market-actions">
+            <button
+                type="button"
+                class="search-btn"
+                id="searchBtn"
+            >
+                🔎 Get Market Prices
+            </button>
+
+            <button
+                type="button"
+                class="clear-btn"
+                id="clearBtn"
+            >
+                Clear Filters
+            </button>
+        </div>
+
+        <div id="marketStatus" class="market-status"></div>
+
+    </div>
+
+    <div class="market-table-card">
+
+        <h2>🌾 Current Mandi Prices</h2>
+
+        <div class="market-summary" id="marketSummary"></div>
+
+        <div class="table-search">
+            <input
+                type="text"
+                id="cropSearch"
+                placeholder="Search within the results by crop, market or district..."
+            >
+        </div>
+
+        <div class="market-table-wrap">
+            <table class="market-table" id="marketTable">
+                <thead>
+                    <tr>
+                        <th>Commodity</th>
+                        <th>Market</th>
+                        <th>District</th>
+                        <th>Variety / Grade</th>
+                        <th>Min Price</th>
+                        <th>Max Price</th>
+                        <th>Modal Price</th>
+                        <th>Arrival Date</th>
+                    </tr>
+                </thead>
+
+                <tbody id="marketTableBody">
+                    {% if market_data %}
+
+                        {% for item in market_data %}
+                            <tr>
+                                <td class="crop-name">
+                                    {{ item.crop }}
+                                </td>
+
+                                <td>{{ item.market }}</td>
+
+                                <td>{{ item.district }}</td>
+
+                                <td>
+                                    {{ item.variety or "—" }}
+                                    {% if item.grade %}
+                                        <br>
+                                        <span class="price-secondary">
+                                            Grade: {{ item.grade }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if item.min_price is not none %}
+                                        ₹{{ "{:,.0f}".format(item.min_price) }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if item.max_price is not none %}
+                                        ₹{{ "{:,.0f}".format(item.max_price) }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td class="modal-price">
+                                    {% if item.modal_price is not none %}
+                                        ₹{{ "{:,.0f}".format(item.modal_price) }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td class="date-text">
+                                    {{ item.date or "—" }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                    {% else %}
+
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-market">
+                                    <div class="empty-market-icon">📊</div>
+                                    <h2>Market Data Unavailable</h2>
+                                    <p>
+                                        Select a state and market location,
+                                        then click "Get Market Prices".
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="source-note">
+            Prices are daily mandi observations from the Government of
+            India's market-price dataset. The date shown is the reported
+            arrival date; prices should not be interpreted as a real-time quote.
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const initialDistrict =
+        {{ market_district|tojson }};
+
+    const initialMarket =
+        {{ market_name|tojson }};
+
+    const initialCommodity =
+        {{ market_commodity|tojson }};
+
+    const stateSelect =
+        document.getElementById("stateSelect");
+
+    const districtSelect =
+        document.getElementById("districtSelect");
+
+    const marketSelect =
+        document.getElementById("marketSelect");
+
+    const commoditySelect =
+        document.getElementById("commoditySelect");
+
+    const searchBtn =
+        document.getElementById("searchBtn");
+
+    const clearBtn =
+        document.getElementById("clearBtn");
+
+    const refreshBtn =
+        document.getElementById("refreshBtn");
+
+    const marketStatus =
+        document.getElementById("marketStatus");
+
+    const marketTableBody =
+        document.getElementById("marketTableBody");
+
+    const marketSummary =
+        document.getElementById("marketSummary");
+
+    const cropSearch =
+        document.getElementById("cropSearch");
+
+
+    function setStatus(message, type) {
+        marketStatus.textContent = message;
+        marketStatus.className =
+            "market-status " + (type || "");
+    }
+
+
+    function clearStatus() {
+        marketStatus.textContent = "";
+        marketStatus.className = "market-status";
+    }
+
+
+    function setSelectLoading(select, text) {
+        select.innerHTML =
+            `<option value="">${text}</option>`;
+    }
+
+
+    function addOptions(select, values, placeholder) {
+        const currentValue = select.value;
+
+        select.innerHTML =
+            `<option value="">${placeholder}</option>`;
+
+        values.forEach(function(value) {
+            const option =
+                document.createElement("option");
+
+            option.value = value;
+            option.textContent = value;
+
+            select.appendChild(option);
+        });
+
+        if (currentValue &&
+            values.includes(currentValue)) {
+            select.value = currentValue;
+        }
+    }
+
+
+    async function fetchOptions(mode, state, district, market) {
+        const params =
+            new URLSearchParams();
+
+        params.set("mode", mode);
+        params.set("state", state);
+
+        if (district) {
+            params.set("district", district);
+        }
+
+        if (market) {
+            params.set("market", market);
+        }
+
+        const response =
+            await fetch(
+                `/api/market-data?${params.toString()}`
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message ||
+                "Unable to load market options."
+            );
+        }
+
+        return data.values || [];
+    }
+
+
+    async function loadDistricts(preferredDistrict = "") {
+        setSelectLoading(
+            districtSelect,
+            "Loading districts..."
+        );
+
+        setSelectLoading(
+            marketSelect,
+            "Select district first"
+        );
+
+        setSelectLoading(
+            commoditySelect,
+            "Select market or district"
+        );
+
+        try {
+            const values =
+                await fetchOptions(
+                    "districts",
+                    stateSelect.value,
+                    "",
+                    ""
+                );
+
+            addOptions(
+                districtSelect,
+                values,
+                "All Districts"
+            );
+
+            if (preferredDistrict &&
+                values.includes(preferredDistrict)) {
+                districtSelect.value =
+                    preferredDistrict;
+            }
+        } catch (error) {
+            console.error(error);
+
+            districtSelect.innerHTML =
+                `<option value="">All Districts</option>`;
+
+            setStatus(
+                "Could not load district options. You can still try the market search.",
+                "error"
+            );
+        }
+    }
+
+
+    async function loadMarkets(preferredMarket = "") {
+        setSelectLoading(
+            marketSelect,
+            "Loading markets..."
+        );
+
+        setSelectLoading(
+            commoditySelect,
+            "Loading commodities..."
+        );
+
+        try {
+            const values =
+                await fetchOptions(
+                    "markets",
+                    stateSelect.value,
+                    districtSelect.value,
+                    ""
+                );
+
+            addOptions(
+                marketSelect,
+                values,
+                "All Markets"
+            );
+
+            if (preferredMarket &&
+                values.includes(preferredMarket)) {
+                marketSelect.value =
+                    preferredMarket;
+            }
+
+            await loadCommodities(
+                initialCommodity
+            );
+
+        } catch (error) {
+            console.error(error);
+
+            marketSelect.innerHTML =
+                `<option value="">All Markets</option>`;
+
+            commoditySelect.innerHTML =
+                `<option value="">All Commodities</option>`;
+        }
+    }
+
+
+    async function loadCommodities(preferredCommodity = "") {
+        setSelectLoading(
+            commoditySelect,
+            "Loading commodities..."
+        );
+
+        try {
+            const values =
+                await fetchOptions(
+                    "commodities",
+                    stateSelect.value,
+                    districtSelect.value,
+                    marketSelect.value
+                );
+
+            addOptions(
+                commoditySelect,
+                values,
+                "All Commodities"
+            );
+
+            if (preferredCommodity &&
+                values.includes(preferredCommodity)) {
+                commoditySelect.value =
+                    preferredCommodity;
+            }
+
+        } catch (error) {
+            console.error(error);
+
+            commoditySelect.innerHTML =
+                `<option value="">All Commodities</option>`;
+        }
+    }
+
+
+    function money(value) {
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return "—";
+        }
+
+        const number =
+            Number(value);
+
+        if (Number.isNaN(number)) {
+            return "—";
+        }
+
+        return "₹" +
+            number.toLocaleString(
+                "en-IN",
+                {
+                    maximumFractionDigits: 0
+                }
+            );
+    }
+
+
+    function renderRecords(records) {
+        if (!records.length) {
+            marketTableBody.innerHTML = `
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-market">
+                            <div class="empty-market-icon">📊</div>
+                            <h2>No market records found</h2>
+                            <p>
+                                Try a different state, district, market or commodity.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            marketSummary.innerHTML = "";
+            return;
+        }
+
+        marketTableBody.innerHTML =
+            records.map(function(item) {
+                const variety =
+                    item.variety || "—";
+
+                const grade =
+                    item.grade
+                        ? `<br><span class="price-secondary">Grade: ${escapeHtml(item.grade)}</span>`
+                        : "";
+
+                return `
+                    <tr>
+                        <td class="crop-name">
+                            ${escapeHtml(item.crop || "Unknown")}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(item.market || "Unknown")}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(item.district || "—")}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(variety)}
+                            ${grade}
+                        </td>
+
+                        <td>
+                            ${money(item.min_price)}
+                        </td>
+
+                        <td>
+                            ${money(item.max_price)}
+                        </td>
+
+                        <td class="modal-price">
+                            ${money(item.modal_price)}
+                        </td>
+
+                        <td class="date-text">
+                            ${escapeHtml(item.date || "—")}
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+
+        marketSummary.innerHTML = `
+            <span class="summary-pill">
+                ${records.length} record(s)
+            </span>
+            <span class="summary-pill">
+                State: ${escapeHtml(stateSelect.value)}
+            </span>
+            <span class="summary-pill">
+                District: ${escapeHtml(districtSelect.value || "All")}
+            </span>
+            <span class="summary-pill">
+                Market: ${escapeHtml(marketSelect.value || "All")}
+            </span>
+        `;
+    }
+
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+
+    async function loadMarketData() {
+        setStatus(
+            "Loading mandi prices...",
+            "loading"
+        );
+
+        marketTableBody.innerHTML = `
+            <tr>
+                <td colspan="8">
+                    <div class="loading-row">
+                        ⏳ Fetching the latest available mandi records...
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        const params =
+            new URLSearchParams();
+
+        params.set(
+            "state",
+            stateSelect.value
+        );
+
+        if (districtSelect.value) {
+            params.set(
+                "district",
+                districtSelect.value
+            );
+        }
+
+        if (marketSelect.value) {
+            params.set(
+                "market",
+                marketSelect.value
+            );
+        }
+
+        if (commoditySelect.value) {
+            params.set(
+                "commodity",
+                commoditySelect.value
+            );
+        }
+
+        try {
+            const response =
+                await fetch(
+                    `/api/market-data?${params.toString()}`
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.message ||
+                    "Unable to retrieve market prices."
+                );
+            }
+
+            renderRecords(
+                data.records || []
+            );
+
+            setStatus(
+                `✓ ${data.count || 0} market record(s) retrieved.`,
+                "success"
+            );
+
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+            url.searchParams.set(
+                "state",
+                stateSelect.value
+            );
+
+            [
+                ["district", districtSelect.value],
+                ["market", marketSelect.value],
+                ["commodity", commoditySelect.value]
+            ].forEach(function(pair) {
+                if (pair[1]) {
+                    url.searchParams.set(
+                        pair[0],
+                        pair[1]
+                    );
+                } else {
+                    url.searchParams.delete(
+                        pair[0]
+                    );
+                }
+            });
+
+            window.history.replaceState(
+                {},
+                "",
+                url.toString()
+            );
+
+        } catch (error) {
+            console.error(error);
+
+            marketTableBody.innerHTML = `
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-market">
+                            <div class="empty-market-icon">⚠️</div>
+                            <h2>Market Data Unavailable</h2>
+                            <p>${escapeHtml(error.message)}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            marketSummary.innerHTML = "";
+
+            setStatus(
+                error.message,
+                "error"
+            );
+        }
+    }
+
+
+    stateSelect.addEventListener(
+        "change",
+        async function() {
+            clearStatus();
+
+            await loadDistricts();
+            await loadMarkets();
+            await loadMarketData();
+        }
+    );
+
+
+    districtSelect.addEventListener(
+        "change",
+        async function() {
+            await loadMarkets();
+            await loadMarketData();
+        }
+    );
+
+
+    marketSelect.addEventListener(
+        "change",
+        async function() {
+            await loadCommodities();
+            await loadMarketData();
+        }
+    );
+
+
+    commoditySelect.addEventListener(
+        "change",
+        loadMarketData
+    );
+
+
+    searchBtn.addEventListener(
+        "click",
+        loadMarketData
+    );
+
+
+    refreshBtn.addEventListener(
+        "click",
+        loadMarketData
+    );
+
+
+    clearBtn.addEventListener(
+        "click",
+        async function() {
+            districtSelect.value = "";
+            marketSelect.innerHTML =
+                `<option value="">All Markets</option>`;
+            commoditySelect.innerHTML =
+                `<option value="">All Commodities</option>`;
+
+            clearStatus();
+
+            await loadMarkets();
+            await loadMarketData();
+        }
+    );
+
+
+    cropSearch.addEventListener(
+        "input",
+        function() {
+            const filter =
+                cropSearch.value
+                    .trim()
+                    .toLowerCase();
+
+            const rows =
+                marketTableBody
+                    .getElementsByTagName("tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                const text =
+                    rows[i]
+                        .textContent
+                        .toLowerCase();
+
+                rows[i].style.display =
+                    text.includes(filter)
+                        ? ""
+                        : "none";
+            }
+        }
+    );
+
+
+    async function initializeMarketPage() {
+        try {
+            await loadDistricts(
+                initialDistrict
+            );
+
+            await loadMarkets(
+                initialMarket
+            );
+
+            await loadMarketData();
+
+        } catch (error) {
+            console.error(error);
+
+            setStatus(
+                error.message ||
+                "Unable to initialize market filters.",
+                "error"
+            );
+        }
+    }
+
+
+    initializeMarketPage();
+</script>
+
+{% endblock %}

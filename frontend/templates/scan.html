@@ -1,0 +1,2010 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+
+<div class="scan-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="scan-header">
+
+        <h1>Detect Crop Disease</h1>
+
+        <p>
+            Upload a crop image to detect leaves, identify
+            diseases, estimate severity, and get
+            recommendations.
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         UPLOAD CARD
+    ====================================================== -->
+
+    <div class="upload-card">
+
+        <form
+            id="scanForm"
+            enctype="multipart/form-data"
+        >
+
+            <div class="upload-area">
+
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                <h3>
+                    Upload Crop Image
+                </h3>
+
+                <p>
+                    JPG, JPEG, PNG or WEBP
+                </p>
+
+                <input
+                    type="file"
+                    id="imageInput"
+                    name="image"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 IMAGE PREVIEW
+            ================================================== -->
+
+            <div
+                id="previewContainer"
+                class="preview-container"
+                style="display: none;"
+            >
+
+                <h3>
+                    Selected Image
+                </h3>
+
+                <img
+                    id="imagePreview"
+                    src=""
+                    alt="Selected crop image"
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 ANALYZE BUTTON
+            ================================================== -->
+
+            <button
+                type="submit"
+                id="analyzeButton"
+                class="analyze-button"
+            >
+
+                <i class="fa-solid fa-microscope"></i>
+
+                Analyze Crop
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         LOADING
+    ====================================================== -->
+
+    <div
+        id="loadingMessage"
+        class="loading-card"
+        style="display: none;"
+    >
+
+        <div class="loading-spinner"></div>
+
+        <h3>
+            Analyzing Image...
+        </h3>
+
+        <p>
+            Detecting leaves →
+            Identifying disease →
+            Estimating severity →
+            Generating recommendations
+        </p>
+
+        <p>
+            Please wait...
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         ERROR MESSAGE
+    ====================================================== -->
+
+    <div
+        id="errorMessage"
+        class="error-card"
+        style="display: none;"
+    >
+
+        <i class="fa-solid fa-circle-exclamation"></i>
+
+        <span id="errorText">
+            Something went wrong.
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         RESULTS
+    ====================================================== -->
+
+    <div
+        id="predictionResult"
+        class="results-section"
+        style="display: none;"
+    >
+
+        <div class="results-header">
+
+            <h2>
+                <i class="fa-solid fa-chart-simple"></i>
+                Prediction Result
+            </h2>
+
+            <p id="analysisMessage">
+                Analysis completed successfully.
+            </p>
+
+        </div>
+
+
+        <!-- Number of detected leaves -->
+
+        <div
+            id="detectionSummary"
+            class="detection-summary"
+        >
+        </div>
+
+
+        <!-- Leaf results -->
+
+        <div id="leafResults"></div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        // ====================================================
+        // GET ELEMENTS
+        // ====================================================
+
+        const scanForm =
+            document.getElementById(
+                "scanForm"
+            );
+
+
+        const imageInput =
+            document.getElementById(
+                "imageInput"
+            );
+
+
+        const imagePreview =
+            document.getElementById(
+                "imagePreview"
+            );
+
+
+        const previewContainer =
+            document.getElementById(
+                "previewContainer"
+            );
+
+
+        const loadingMessage =
+            document.getElementById(
+                "loadingMessage"
+            );
+
+
+        const errorMessage =
+            document.getElementById(
+                "errorMessage"
+            );
+
+
+        const errorText =
+            document.getElementById(
+                "errorText"
+            );
+
+
+        const predictionResult =
+            document.getElementById(
+                "predictionResult"
+            );
+
+
+        const analysisMessage =
+            document.getElementById(
+                "analysisMessage"
+            );
+
+
+        const leafResults =
+            document.getElementById(
+                "leafResults"
+            );
+
+
+        const detectionSummary =
+            document.getElementById(
+                "detectionSummary"
+            );
+
+
+        const analyzeButton =
+            document.getElementById(
+                "analyzeButton"
+            );
+
+
+        // ====================================================
+        // IMAGE PREVIEW
+        // ====================================================
+
+        imageInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    imageInput.files[0];
+
+
+                if (!file) {
+
+                    previewContainer.style.display =
+                        "none";
+
+                    imagePreview.src =
+                        "";
+
+                    return;
+
+                }
+
+
+                // Check image type
+
+                if (
+                    !file.type.startsWith(
+                        "image/"
+                    )
+                ) {
+
+                    showError(
+                        "Please select a valid image file."
+                    );
+
+                    imageInput.value =
+                        "";
+
+                    previewContainer.style.display =
+                        "none";
+
+                    return;
+
+                }
+
+
+                const imageURL =
+                    URL.createObjectURL(
+                        file
+                    );
+
+
+                imagePreview.src =
+                    imageURL;
+
+
+                previewContainer.style.display =
+                    "block";
+
+
+                // Hide previous messages
+
+                errorMessage.style.display =
+                    "none";
+
+                predictionResult.style.display =
+                    "none";
+
+            }
+        );
+
+
+        // ====================================================
+        // FORM SUBMISSION
+        // ====================================================
+
+        scanForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const file =
+                    imageInput.files[0];
+
+
+                if (!file) {
+
+                    showError(
+                        "Please select an image first."
+                    );
+
+                    return;
+
+                }
+
+
+                // ------------------------------------------------
+                // RESET UI
+                // ------------------------------------------------
+
+                predictionResult.style.display =
+                    "none";
+
+                errorMessage.style.display =
+                    "none";
+
+                loadingMessage.style.display =
+                    "block";
+
+
+                analyzeButton.disabled =
+                    true;
+
+
+                analyzeButton.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...';
+
+
+                // ------------------------------------------------
+                // CREATE FORM DATA
+                // ------------------------------------------------
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "image",
+                    file
+                );
+
+
+                try {
+
+                    // ============================================
+                    // SEND IMAGE TO FLASK
+                    // ============================================
+
+                    const response =
+                        await fetch(
+                            "/analyze",
+                            {
+                                method: "POST",
+                                body: formData
+                            }
+                        );
+
+
+                    let data;
+
+
+                    try {
+
+                        data =
+                            await response.json();
+
+                    }
+
+                    catch (jsonError) {
+
+                        throw new Error(
+                            "Server returned an invalid response."
+                        );
+
+                    }
+
+
+                    // ============================================
+                    // CHECK RESPONSE
+                    // ============================================
+
+                    if (
+                        !response.ok ||
+                        !data.success
+                    ) {
+
+                        throw new Error(
+                            data.message ||
+                            "Image analysis failed."
+                        );
+
+                    }
+
+
+                    // ============================================
+                    // DISPLAY RESULTS
+                    // ============================================
+
+                    displayResults(
+                        data
+                    );
+
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Analysis error:",
+                        error
+                    );
+
+
+                    showError(
+                        error.message ||
+                        "Something went wrong while analyzing the image."
+                    );
+
+                }
+
+                finally {
+
+                    loadingMessage.style.display =
+                        "none";
+
+
+                    analyzeButton.disabled =
+                        false;
+
+
+                    analyzeButton.innerHTML =
+                        '<i class="fa-solid fa-microscope"></i> Analyze Crop';
+
+                }
+
+            }
+        );
+
+
+        // ====================================================
+        // DISPLAY RESULTS
+        // ====================================================
+
+        function displayResults(
+            data
+        ) {
+
+            predictionResult.style.display =
+                "block";
+
+
+            analysisMessage.textContent =
+                data.message ||
+                "Analysis completed successfully.";
+
+
+            leafResults.innerHTML =
+                "";
+
+
+            // ================================================
+            // DETECTION SUMMARY
+            // ================================================
+
+            const detected =
+                data.leaves_detected || 0;
+
+
+            const processed =
+                data.processed_leaves || 0;
+
+
+            detectionSummary.innerHTML = `
+
+                <div class="summary-item">
+
+                    <i class="fa-solid fa-leaf"></i>
+
+                    <div>
+
+                        <strong>
+                            ${detected}
+                        </strong>
+
+                        <span>
+                            Leaves Detected
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <i class="fa-solid fa-microscope"></i>
+
+                    <div>
+
+                        <strong>
+                            ${processed}
+                        </strong>
+
+                        <span>
+                            Leaves Analyzed
+                        </span>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            // ================================================
+            // NO RESULTS
+            // ================================================
+
+            if (
+                !data.results ||
+                data.results.length === 0
+            ) {
+
+                leafResults.innerHTML = `
+
+                    <div class="no-result-card">
+
+                        <i class="fa-solid fa-leaf"></i>
+
+                        <h3>
+                            No Leaves Detected
+                        </h3>
+
+                        <p>
+                            No suitable leaf was detected
+                            in the uploaded image.
+                            Please try another clear crop image.
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            // ================================================
+            // CREATE EACH LEAF CARD
+            // ================================================
+
+            data.results.forEach(
+                function (leaf) {
+
+                    const card =
+                        createLeafCard(
+                            leaf
+                        );
+
+
+                    leafResults.appendChild(
+                        card
+                    );
+
+                }
+            );
+
+        }
+
+
+        // ====================================================
+        // CREATE LEAF CARD
+        // ====================================================
+
+        function createLeafCard(
+            leaf
+        ) {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "leaf-result-card";
+
+
+            // =================================================
+            // SEVERITY CLASS
+            // =================================================
+
+            let severityClass =
+                "severity-moderate";
+
+
+            if (
+                leaf.severity &&
+                leaf.severity.toLowerCase()
+                    === "mild"
+            ) {
+
+                severityClass =
+                    "severity-mild";
+
+            }
+
+            else if (
+                leaf.severity &&
+                leaf.severity.toLowerCase()
+                    === "severe"
+            ) {
+
+                severityClass =
+                    "severity-severe";
+
+            }
+
+
+            // =================================================
+            // BASIC INFORMATION
+            // =================================================
+
+            card.innerHTML = `
+
+                <div class="leaf-card-header">
+
+                    <h3>
+
+                        <i class="fa-solid fa-leaf"></i>
+
+                        Leaf ${leaf.leaf_number}
+
+                    </h3>
+
+                    <span class="leaf-confidence">
+
+                        Detection:
+                        ${leaf.leaf_detection_confidence ?? 0}%
+
+                    </span>
+
+                </div>
+
+
+                <div class="prediction-grid">
+
+                    <div class="prediction-item">
+
+                        <span class="label">
+                            Crop
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                leaf.crop
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="prediction-item">
+
+                        <span class="label">
+                            Disease
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                leaf.disease
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="prediction-item">
+
+                        <span class="label">
+                            Disease Confidence
+                        </span>
+
+                        <strong>
+                            ${leaf.disease_confidence ?? 0}%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="prediction-item">
+
+                        <span class="label">
+                            Diseased Area
+                        </span>
+
+                        <strong>
+                            ${leaf.diseased_area_percent ?? 0}%
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="severity-box ${severityClass}">
+
+                    <span>
+                        Severity
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(
+                            leaf.severity
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <!-- =========================================
+                     DISEASE RECOMMENDATIONS
+                ========================================== -->
+
+                <div class="recommendation-section">
+
+                    <h4>
+
+                        <i class="fa-solid fa-notes-medical"></i>
+
+                        Disease Recommendations
+
+                    </h4>
+
+                    <ul
+                        class="recommendation-list"
+                    >
+                    </ul>
+
+                </div>
+
+
+                <!-- =========================================
+                     FERTILIZER RECOMMENDATION
+                ========================================== -->
+
+                <div class="fertilizer-section">
+
+                    <h4>
+
+                        <i class="fa-solid fa-seedling"></i>
+
+                        Fertilizer Recommendation
+
+                    </h4>
+
+
+                    <div class="fertilizer-card">
+
+                        <div class="fertilizer-main">
+
+                            <div class="fertilizer-icon">
+
+                                <i class="fa-solid fa-flask"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <span class="fertilizer-label">
+
+                                    Recommended Fertilizer
+
+                                </span>
+
+                                <h3 class="fertilizer-name">
+
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="fertilizer-details">
+
+                            <p>
+
+                                <strong>
+                                    Nutrient Focus:
+                                </strong>
+
+                                <span class="nutrient-focus">
+                                </span>
+
+                            </p>
+
+
+                            <p>
+
+                                <strong>
+                                    Why:
+                                </strong>
+
+                                <span class="fertilizer-reason">
+                                </span>
+
+                            </p>
+
+
+                            <p class="soil-test-info">
+                            </p>
+
+
+                            <p class="fertilizer-note">
+                            </p>
+
+                        </div>
+
+
+                        <div
+                            class="buy-button-container"
+                        >
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            // =================================================
+            // DISEASE RECOMMENDATIONS
+            // =================================================
+
+            const recommendationList =
+                card.querySelector(
+                    ".recommendation-list"
+                );
+
+
+            if (
+                leaf.recommendations &&
+                leaf.recommendations.length > 0
+            ) {
+
+                leaf.recommendations.forEach(
+                    function (recommendation) {
+
+                        const li =
+                            document.createElement(
+                                "li"
+                            );
+
+
+                        li.textContent =
+                            recommendation;
+
+
+                        recommendationList.appendChild(
+                            li
+                        );
+
+                    }
+                );
+
+            }
+
+
+            // =================================================
+            // FERTILIZER INFORMATION
+            // =================================================
+
+            const fertilizer =
+                leaf.fertilizer_recommendation;
+
+
+            if (fertilizer) {
+
+                // ---------------------------------------------
+                // Fertilizer name
+                // ---------------------------------------------
+
+                const fertilizerName =
+                    card.querySelector(
+                        ".fertilizer-name"
+                    );
+
+
+                fertilizerName.textContent =
+                    fertilizer.fertilizer ||
+                    "Balanced NPK";
+
+
+                // ---------------------------------------------
+                // Nutrient focus
+                // ---------------------------------------------
+
+                const nutrientFocus =
+                    card.querySelector(
+                        ".nutrient-focus"
+                    );
+
+
+                nutrientFocus.textContent =
+                    fertilizer.nutrient_focus ||
+                    "Balanced NPK";
+
+
+                // ---------------------------------------------
+                // Reason
+                // ---------------------------------------------
+
+                const fertilizerReason =
+                    card.querySelector(
+                        ".fertilizer-reason"
+                    );
+
+
+                fertilizerReason.textContent =
+                    fertilizer.reason ||
+                    "Follow soil-test and crop-specific guidance.";
+
+
+                // ---------------------------------------------
+                // Soil test
+                // ---------------------------------------------
+
+                const soilTestInfo =
+                    card.querySelector(
+                        ".soil-test-info"
+                    );
+
+
+                if (
+                    fertilizer.soil_test_used
+                ) {
+
+                    soilTestInfo.textContent =
+                        "✓ Soil test information was used in this recommendation.";
+
+                }
+
+                else {
+
+                    soilTestInfo.textContent =
+                        "ℹ No soil test was provided. This is a general nutrient recommendation.";
+
+                }
+
+
+                // ---------------------------------------------
+                // Application note
+                // ---------------------------------------------
+
+                const fertilizerNote =
+                    card.querySelector(
+                        ".fertilizer-note"
+                    );
+
+
+                fertilizerNote.textContent =
+                    fertilizer.application_note ||
+                    "Follow the product label and local agricultural guidance.";
+
+
+                // ---------------------------------------------
+                // BUY ONLINE BUTTON
+                // ---------------------------------------------
+
+                const buyContainer =
+                    card.querySelector(
+                        ".buy-button-container"
+                    );
+
+
+                if (
+                    fertilizer.buy_online &&
+                    fertilizer.buy_url
+                ) {
+
+                    const buyButton =
+                        document.createElement(
+                            "a"
+                        );
+
+
+                    buyButton.href =
+                        fertilizer.buy_url;
+
+
+                    buyButton.target =
+                        "_blank";
+
+
+                    buyButton.rel =
+                        "noopener noreferrer";
+
+
+                    buyButton.className =
+                        "buy-online-button";
+
+
+                    buyButton.innerHTML = `
+
+                        <i class="fa-solid fa-cart-shopping"></i>
+
+                        Buy Online
+
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+
+                    `;
+
+
+                    buyContainer.appendChild(
+                        buyButton
+                    );
+
+                }
+
+            }
+
+            else {
+
+                // No fertilizer information
+
+                const fertilizerSection =
+                    card.querySelector(
+                        ".fertilizer-section"
+                    );
+
+
+                fertilizerSection.innerHTML = `
+
+                    <h4>
+
+                        <i class="fa-solid fa-seedling"></i>
+
+                        Fertilizer Recommendation
+
+                    </h4>
+
+                    <div class="fertilizer-card">
+
+                        <p>
+                            No fertilizer recommendation
+                            is available for this result.
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+
+            return card;
+
+        }
+
+
+        // ====================================================
+        // SHOW ERROR
+        // ====================================================
+
+        function showError(
+            message
+        ) {
+
+            errorMessage.style.display =
+                "flex";
+
+
+            errorText.textContent =
+                message;
+
+
+            predictionResult.style.display =
+                "none";
+
+        }
+
+
+        // ====================================================
+        // ESCAPE HTML
+        // ====================================================
+
+        function escapeHTML(
+            value
+        ) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+
+                return "";
+
+            }
+
+
+            return String(value)
+
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+    }
+
+);
+
+</script>
+
+
+<!-- =========================================================
+     PAGE STYLING
+========================================================= -->
+
+<style>
+
+/* ============================================================
+   MAIN PAGE
+============================================================ */
+
+.scan-page {
+
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    padding: 30px;
+
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.scan-header {
+
+    margin-bottom: 25px;
+
+}
+
+
+.scan-header h1 {
+
+    margin: 0 0 8px 0;
+
+    font-size: 30px;
+
+}
+
+
+.scan-header p {
+
+    margin: 0;
+
+    opacity: 0.7;
+
+    font-size: 15px;
+
+}
+
+
+/* ============================================================
+   UPLOAD CARD
+============================================================ */
+
+.upload-card {
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 4px 20px rgba(
+            0,
+            0,
+            0,
+            0.06
+        );
+
+}
+
+
+/* ============================================================
+   UPLOAD AREA
+============================================================ */
+
+.upload-area {
+
+    border: 2px dashed #ccc;
+
+    border-radius: 14px;
+
+    padding: 40px 20px;
+
+    text-align: center;
+
+}
+
+
+.upload-area > i {
+
+    font-size: 45px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.upload-area h3 {
+
+    margin: 5px 0;
+
+}
+
+
+.upload-area p {
+
+    opacity: 0.65;
+
+    margin-bottom: 20px;
+
+}
+
+
+.upload-area input {
+
+    max-width: 100%;
+
+}
+
+
+/* ============================================================
+   PREVIEW
+============================================================ */
+
+.preview-container {
+
+    margin-top: 25px;
+
+    text-align: center;
+
+}
+
+
+.preview-container h3 {
+
+    margin-bottom: 15px;
+
+}
+
+
+#imagePreview {
+
+    max-width: 600px;
+
+    max-height: 450px;
+
+    width: 100%;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+}
+
+
+/* ============================================================
+   ANALYZE BUTTON
+============================================================ */
+
+.analyze-button {
+
+    display: block;
+
+    margin: 25px auto 0;
+
+    padding: 13px 28px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+.analyze-button:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.loading-card {
+
+    margin-top: 25px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    background: white;
+
+    border-radius: 14px;
+
+}
+
+
+.loading-spinner {
+
+    width: 40px;
+
+    height: 40px;
+
+    margin: 0 auto 15px;
+
+    border: 4px solid #ddd;
+
+    border-top: 4px solid #277c32;
+
+    border-radius: 50%;
+
+    animation:
+        spin 1s linear infinite;
+
+}
+
+
+@keyframes spin {
+
+    100% {
+
+        transform: rotate(360deg);
+
+    }
+
+}
+
+
+/* ============================================================
+   ERROR
+============================================================ */
+
+.error-card {
+
+    margin-top: 25px;
+
+    padding: 18px 20px;
+
+    background: #fff0f0;
+
+    border-radius: 12px;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+.error-card i {
+
+    font-size: 20px;
+
+}
+
+
+/* ============================================================
+   RESULTS
+============================================================ */
+
+.results-section {
+
+    margin-top: 30px;
+
+}
+
+
+.results-header h2 {
+
+    margin-bottom: 5px;
+
+}
+
+
+.results-header p {
+
+    opacity: 0.7;
+
+}
+
+
+/* ============================================================
+   DETECTION SUMMARY
+============================================================ */
+
+.detection-summary {
+
+    display: flex;
+
+    gap: 15px;
+
+    margin: 20px 0;
+
+}
+
+
+.summary-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 15px 20px;
+
+    background: white;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 15px rgba(
+            0,
+            0,
+            0,
+            0.05
+        );
+
+}
+
+
+.summary-item i {
+
+    font-size: 24px;
+
+}
+
+
+.summary-item strong {
+
+    display: block;
+
+    font-size: 20px;
+
+}
+
+
+.summary-item span {
+
+    font-size: 12px;
+
+    opacity: 0.7;
+
+}
+
+
+/* ============================================================
+   LEAF RESULT CARD
+============================================================ */
+
+.leaf-result-card {
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 25px;
+
+    margin-top: 20px;
+
+    box-shadow:
+        0 4px 20px rgba(
+            0,
+            0,
+            0,
+            0.06
+        );
+
+}
+
+
+/* ============================================================
+   LEAF HEADER
+============================================================ */
+
+.leaf-card-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+
+}
+
+
+.leaf-card-header h3 {
+
+    margin: 0;
+
+}
+
+
+.leaf-confidence {
+
+    font-size: 13px;
+
+    opacity: 0.7;
+
+}
+
+
+/* ============================================================
+   PREDICTION GRID
+============================================================ */
+
+.prediction-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 15px;
+
+}
+
+
+.prediction-item {
+
+    padding: 15px;
+
+    border-radius: 10px;
+
+    background: #f7f9f7;
+
+}
+
+
+.prediction-item .label {
+
+    display: block;
+
+    font-size: 12px;
+
+    opacity: 0.65;
+
+    margin-bottom: 5px;
+
+}
+
+
+.prediction-item strong {
+
+    font-size: 16px;
+
+}
+
+
+/* ============================================================
+   SEVERITY
+============================================================ */
+
+.severity-box {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 18px;
+
+    padding: 15px 18px;
+
+    border-radius: 10px;
+
+}
+
+
+.severity-box span {
+
+    font-weight: 500;
+
+}
+
+
+.severity-box strong {
+
+    font-size: 16px;
+
+}
+
+
+.severity-mild {
+
+    background: #edf8ed;
+
+}
+
+
+.severity-moderate {
+
+    background: #fff7df;
+
+}
+
+
+.severity-severe {
+
+    background: #ffebeb;
+
+}
+
+
+/* ============================================================
+   RECOMMENDATIONS
+============================================================ */
+
+.recommendation-section {
+
+    margin-top: 28px;
+
+}
+
+
+.recommendation-section h4 {
+
+    margin-bottom: 12px;
+
+}
+
+
+.recommendation-list {
+
+    padding-left: 22px;
+
+}
+
+
+.recommendation-list li {
+
+    margin-bottom: 9px;
+
+    line-height: 1.5;
+
+}
+
+
+/* ============================================================
+   FERTILIZER SECTION
+============================================================ */
+
+.fertilizer-section {
+
+    margin-top: 30px;
+
+}
+
+
+.fertilizer-section > h4 {
+
+    margin-bottom: 12px;
+
+}
+
+
+.fertilizer-card {
+
+    padding: 22px;
+
+    border-radius: 14px;
+
+    background: #f7fbf7;
+
+    border: 1px solid #dcecdc;
+
+}
+
+
+/* ============================================================
+   FERTILIZER MAIN
+============================================================ */
+
+.fertilizer-main {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+}
+
+
+.fertilizer-icon {
+
+    width: 50px;
+
+    height: 50px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 22px;
+
+}
+
+
+.fertilizer-label {
+
+    display: block;
+
+    font-size: 12px;
+
+    opacity: 0.65;
+
+}
+
+
+.fertilizer-name {
+
+    margin: 4px 0 0;
+
+    font-size: 20px;
+
+}
+
+
+/* ============================================================
+   FERTILIZER DETAILS
+============================================================ */
+
+.fertilizer-details {
+
+    margin-top: 20px;
+
+}
+
+
+.fertilizer-details p {
+
+    line-height: 1.5;
+
+}
+
+
+.soil-test-info {
+
+    font-size: 14px;
+
+    opacity: 0.75;
+
+}
+
+
+.fertilizer-note {
+
+    font-size: 14px;
+
+    opacity: 0.75;
+
+}
+
+
+/* ============================================================
+   BUY ONLINE
+============================================================ */
+
+.buy-button-container {
+
+    margin-top: 20px;
+
+}
+
+
+.buy-online-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 12px 20px;
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    transition:
+        transform 0.15s ease;
+
+}
+
+
+.buy-online-button:hover {
+
+    transform:
+        translateY(-1px);
+
+}
+
+
+/* ============================================================
+   NO RESULT
+============================================================ */
+
+.no-result-card {
+
+    margin-top: 20px;
+
+    padding: 35px;
+
+    text-align: center;
+
+    background: white;
+
+    border-radius: 14px;
+
+}
+
+
+.no-result-card i {
+
+    font-size: 40px;
+
+    margin-bottom: 10px;
+
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (
+    max-width: 700px
+) {
+
+    .scan-page {
+
+        padding: 20px;
+
+    }
+
+
+    .prediction-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .detection-summary {
+
+        flex-direction: column;
+
+    }
+
+
+    .leaf-card-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 8px;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}

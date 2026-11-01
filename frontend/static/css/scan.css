@@ -1,0 +1,167 @@
+.scan-page{
+
+    width:100%;
+
+}
+
+.page-header{
+
+    margin-bottom:30px;
+
+}
+
+.page-header h1{
+
+    font-size:34px;
+
+    color:#222;
+
+}
+
+.page-header p{
+
+    color:#666;
+
+    margin-top:8px;
+
+}
+
+.scan-container{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:30px;
+
+    margin-bottom:30px;
+
+}
+
+.upload-card,
+.preview-card,
+.prediction-card{
+
+    background:#fff;
+
+    border-radius:22px;
+
+    padding:30px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.05);
+
+}
+
+.upload-area{
+
+    border:3px dashed #4CAF50;
+
+    border-radius:18px;
+
+    height:330px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.upload-area:hover{
+
+    background:#F5FFF6;
+
+}
+
+.upload-area i{
+
+    font-size:70px;
+
+    color:#2E7D32;
+
+}
+
+.upload-area h3{
+
+    margin-top:25px;
+
+}
+
+.upload-area p{
+
+    margin-top:10px;
+
+    color:#777;
+
+}
+
+.upload-area small{
+
+    margin-top:20px;
+
+    color:#999;
+
+}
+
+.preview-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.preview-card img{
+
+    width:100%;
+
+    height:330px;
+
+    object-fit:contain;
+
+    margin-top:20px;
+
+}
+
+.analyze-btn{
+
+    width:100%;
+
+    margin-top:25px;
+
+    padding:16px;
+
+    border:none;
+
+    background:#2E7D32;
+
+    color:white;
+
+    border-radius:14px;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.analyze-btn:hover{
+
+    background:#256728;
+
+}
+
+.prediction-card{
+
+    margin-top:20px;
+
+}

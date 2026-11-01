@@ -1,0 +1,37 @@
+:root{
+
+--primary:#16A34A;
+
+--primary-dark:#166534;
+
+--secondary:#84CC16;
+
+--accent:#38BDF8;
+
+--background:#F8FAFC;
+
+--white:#FFFFFF;
+
+--dark:#0F172A;
+
+--gray:#64748B;
+
+--light:#E2E8F0;
+
+--radius:18px;
+
+--shadow:
+
+0 15px 40px rgba(0,0,0,.08);
+
+--glass:
+
+rgba(255,255,255,.55);
+
+--blur:blur(18px);
+
+--transition:.35s ease;
+
+--max-width:1400px;
+
+}

@@ -1,0 +1,56 @@
+<header class="topbar">
+
+    <div class="topbar-left">
+
+
+        <p>
+
+            Welcome back to AgriVisionAI
+
+        </p>
+
+    </div>
+
+    <div class="topbar-right">
+
+        <div class="search-box">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="text"
+                placeholder="Search...">
+
+        </div>
+
+        <button class="icon-btn">
+
+            <i class="fa-regular fa-bell"></i>
+
+        </button>
+
+        <button class="icon-btn">
+
+            <i class="fa-regular fa-moon"></i>
+
+        </button>
+
+        <div class="profile-box">
+
+            <img
+                src="{{ url_for('static', filename='images/dashboard/avatar.png') }}"
+                alt="Avatar">
+
+            <div>
+
+                <h4>{{ username }}</h4>
+
+                <small>Farmer</small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>

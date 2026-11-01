@@ -1,0 +1,2 @@
+# AgriVisionAI
+Monitoring agricultural crops

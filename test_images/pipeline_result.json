@@ -1,0 +1,27 @@
+[
+    {
+        "leaf_number": 1,
+        "bounding_box": [
+            728,
+            0,
+            1532,
+            739
+        ],
+        "leaf_detection_confidence": 77.77,
+        "class_index": 31,
+        "crop": "Cucumber",
+        "disease": "Gummy Stem Blight",
+        "disease_confidence": 98.96,
+        "diseased_area_percent": 18.41,
+        "severity": "Moderate",
+        "recommendations": [
+            "Remove heavily affected plant material where practical.",
+            "Increase monitoring of nearby plants for similar symptoms.",
+            "Improve field sanitation and avoid conditions that favor disease spread.",
+            "Remove affected leaves where practical and maintain good field sanitation.",
+            "Avoid prolonged leaf wetness and improve air circulation around plants.",
+            "Estimated diseased area: 18.41%.",
+            "Use locally approved agricultural products and follow their label instructions. For severe or uncertain cases, consult a qualified agricultural expert."
+        ]
+    }
+]

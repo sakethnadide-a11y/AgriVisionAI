@@ -1,0 +1,639 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+
+<style>
+    .weather-page {
+        padding: 10px 0 30px;
+    }
+
+    .weather-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        gap: 20px;
+    }
+
+    .weather-header h1 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .weather-header p {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 15px;
+    }
+
+    .weather-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .weather-btn {
+        border: none;
+        background: #5424a8;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .weather-btn:hover {
+        background: #421987;
+        transform: translateY(-1px);
+    }
+
+    .weather-btn.secondary {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .weather-btn.secondary:hover {
+        background: #e0e7ff;
+    }
+
+    .location-status {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+        padding: 14px 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        display: none;
+    }
+
+    .weather-error {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        color: #be123c;
+        padding: 18px 20px;
+        border-radius: 14px;
+        margin-bottom: 25px;
+        font-size: 15px;
+    }
+
+    .current-weather {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        margin-bottom: 25px;
+    }
+
+    .location-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+
+    .location-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #e8f7e9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+    }
+
+    .location-info h2 {
+        margin: 0;
+        font-size: 22px;
+        color: #111827;
+    }
+
+    .location-info p {
+        margin: 4px 0 0;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .source-badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #ecfdf5;
+        color: #047857;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .source-badge.fallback {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .weather-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+        padding: 25px 0;
+        border-top: 1px solid #f0f0f0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .temperature-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .weather-icon {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+    }
+
+    .temperature {
+        font-size: 62px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1;
+    }
+
+    .temperature-unit {
+        font-size: 24px;
+        color: #6b7280;
+        vertical-align: top;
+    }
+
+    .condition {
+        font-size: 18px;
+        color: #4b5563;
+        margin-top: 10px;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+
+    .weather-details {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .weather-detail {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+    .detail-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .detail-label {
+        color: #6b7280;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .farming-card {
+        background: white;
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .farming-card h2 {
+        margin: 0 0 7px;
+        color: #111827;
+        font-size: 22px;
+    }
+
+    .farming-card > p {
+        margin: 0 0 22px;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+    }
+
+    .insight {
+        padding: 20px;
+        border-radius: 15px;
+        background: #f8fafc;
+        border-left: 4px solid #4caf50;
+    }
+
+    .insight h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        color: #111827;
+    }
+
+    .insight p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #6b7280;
+    }
+
+    .no-weather {
+        background: white;
+        border-radius: 20px;
+        padding: 60px 30px;
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .no-weather-icon {
+        font-size: 55px;
+        margin-bottom: 15px;
+    }
+
+    .no-weather h2 {
+        margin: 0 0 10px;
+        color: #111827;
+    }
+
+    .no-weather p {
+        margin: 0 0 20px;
+        color: #6b7280;
+    }
+
+    @media (max-width: 1000px) {
+        .weather-details {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .insights-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .weather-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .weather-main {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .temperature {
+            font-size: 50px;
+        }
+
+        .weather-details {
+            grid-template-columns: 1fr;
+        }
+
+        .current-weather,
+        .farming-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="weather-page">
+
+    <div class="weather-header">
+        <div>
+            <h1>Weather Intelligence</h1>
+            <p>Live weather conditions for your current farming location.</p>
+        </div>
+
+        <div class="weather-actions">
+            <button type="button" class="weather-btn" id="useLocationBtn">
+                📍 Use My Current Location
+            </button>
+
+            {% if weather_lat is not none and weather_lon is not none %}
+                <a
+                    href="{{ url_for('weather', lat=weather_lat, lon=weather_lon) }}"
+                    class="weather-btn secondary"
+                >
+                    ↻ Refresh
+                </a>
+            {% else %}
+                <a
+                    href="{{ url_for('weather') }}"
+                    class="weather-btn secondary"
+                >
+                    ↻ Refresh
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="location-status" id="locationStatus"></div>
+
+    {% if weather_error %}
+        <div class="weather-error">
+            ⚠️ {{ weather_error }}
+        </div>
+    {% endif %}
+
+    {% if weather %}
+
+        <div class="current-weather">
+
+            <div class="location-row">
+                <div class="location-icon">📍</div>
+
+                <div class="location-info">
+                    <h2>{{ weather.city }}</h2>
+
+                    <p>
+                        {% if location_source == "current" %}
+                            Weather based on your browser's current GPS location.
+                        {% else %}
+                            Weather based on your saved profile location because current-location access was unavailable.
+                        {% endif %}
+                    </p>
+
+                    {% if location_source == "current" %}
+                        <span class="source-badge">
+                            ✓ Current Location
+                        </span>
+                    {% else %}
+                        <span class="source-badge fallback">
+                            Profile Location Fallback
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="weather-main">
+                <div class="temperature-section">
+
+                    {% if weather.icon %}
+                        <img
+                            class="weather-icon"
+                            src="https://openweathermap.org/img/wn/{{ weather.icon }}@2x.png"
+                            alt="{{ weather.description }}"
+                        >
+                    {% endif %}
+
+                    <div>
+                        <div class="temperature">
+                            {{ weather.temperature|round(1) }}
+                            <span class="temperature-unit">°C</span>
+                        </div>
+
+                        <div class="condition">
+                            {{ weather.description }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weather-details">
+
+                <div class="weather-detail">
+                    <div class="detail-icon">🌡️</div>
+                    <div class="detail-label">Feels Like</div>
+                    <div class="detail-value">
+                        {{ weather.feels_like|round(1) }}°C
+                    </div>
+                </div>
+
+                <div class="weather-detail">
+                    <div class="detail-icon">💧</div>
+                    <div class="detail-label">Humidity</div>
+                    <div class="detail-value">
+                        {{ weather.humidity }}%
+                    </div>
+                </div>
+
+                <div class="weather-detail">
+                    <div class="detail-icon">💨</div>
+                    <div class="detail-label">Wind Speed</div>
+                    <div class="detail-value">
+                        {{ weather.wind_speed|round(1) }} m/s
+                    </div>
+                </div>
+
+                <div class="weather-detail">
+                    <div class="detail-icon">🌧️</div>
+                    <div class="detail-label">Rain (last hour)</div>
+                    <div class="detail-value">
+                        {{ weather.rain|round(1) }} mm
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="farming-card">
+
+            <h2>🌱 Farming Insights</h2>
+
+            <p>
+                General guidance based on the current weather conditions.
+            </p>
+
+            <div class="insights-grid">
+
+                <div class="insight">
+                    <h3>💧 Humidity</h3>
+
+                    {% if weather.humidity >= 80 %}
+                        <p>
+                            High humidity can increase the risk of fungal disease.
+                            Monitor leaves closely and avoid unnecessary overhead irrigation.
+                        </p>
+                    {% elif weather.humidity >= 60 %}
+                        <p>
+                            Moderate humidity. Continue monitoring crops for signs
+                            of fungal or bacterial disease.
+                        </p>
+                    {% else %}
+                        <p>
+                            Relatively low humidity. Monitor crops for water stress,
+                            especially during hot conditions.
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="insight">
+                    <h3>🌡️ Temperature</h3>
+
+                    {% if weather.temperature >= 35 %}
+                        <p>
+                            High temperatures may increase crop water demand.
+                            Check soil moisture and irrigate according to crop needs.
+                        </p>
+                    {% elif weather.temperature <= 15 %}
+                        <p>
+                            Cooler conditions may slow crop growth.
+                            Monitor temperature-sensitive crops.
+                        </p>
+                    {% else %}
+                        <p>
+                            Temperature is within a moderate range.
+                            Continue normal crop monitoring and irrigation practices.
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="insight">
+                    <h3>🌧️ Rainfall</h3>
+
+                    {% if weather.rain > 5 %}
+                        <p>
+                            Recent rainfall is significant. Check field drainage
+                            and avoid unnecessary irrigation until soil moisture is assessed.
+                        </p>
+                    {% elif weather.rain > 0 %}
+                        <p>
+                            Some rainfall has been recorded recently.
+                            Check soil moisture before applying additional irrigation.
+                        </p>
+                    {% else %}
+                        <p>
+                            No measurable rainfall was reported during the last hour.
+                            Check soil moisture before deciding on irrigation.
+                        </p>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="no-weather">
+            <div class="no-weather-icon">🌦️</div>
+
+            <h2>Weather Data Unavailable</h2>
+
+            <p>
+                {{ weather_error or
+                   "Unable to retrieve weather information right now." }}
+            </p>
+
+            <button
+                type="button"
+                class="weather-btn"
+                onclick="requestCurrentLocation()"
+            >
+                📍 Try Current Location Again
+            </button>
+        </div>
+
+    {% endif %}
+
+</div>
+
+<script>
+    const hasGpsCoordinates =
+        {{ "true" if weather_lat is not none and weather_lon is not none else "false" }};
+
+    const locationStatus =
+        document.getElementById("locationStatus");
+
+    function setLocationStatus(message, show = true) {
+        if (!locationStatus) return;
+
+        locationStatus.textContent = message;
+        locationStatus.style.display = show ? "block" : "none";
+    }
+
+    function requestCurrentLocation() {
+        if (!navigator.geolocation) {
+            setLocationStatus(
+                "Your browser does not support location access. Showing your profile location instead."
+            );
+            return;
+        }
+
+        setLocationStatus(
+            "📍 Getting your current location. Please allow location access in your browser..."
+        );
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                setLocationStatus(
+                    "✓ Current location found. Loading local weather..."
+                );
+
+                const url = new URL(
+                    "{{ url_for('weather') }}",
+                    window.location.origin
+                );
+
+                url.searchParams.set("lat", lat);
+                url.searchParams.set("lon", lon);
+
+                window.location.href = url.toString();
+            },
+            function(error) {
+                let message =
+                    "Location access was not available. Showing your saved profile location instead.";
+
+                if (error.code === 1) {
+                    message =
+                        "Location permission was denied. You can allow it from your browser's site settings and click 'Use My Current Location' again.";
+                } else if (error.code === 2) {
+                    message =
+                        "Your current location could not be determined. Showing your saved profile location instead.";
+                } else if (error.code === 3) {
+                    message =
+                        "Location request timed out. Showing your saved profile location instead.";
+                }
+
+                setLocationStatus(message);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 300000
+            }
+        );
+    }
+
+    document
+        .getElementById("useLocationBtn")
+        ?.addEventListener(
+            "click",
+            requestCurrentLocation
+        );
+
+    /*
+     * On a normal /weather visit, automatically request the farmer's
+     * current browser location. If the farmer denies it, the Flask
+     * fallback weather remains visible.
+     */
+    if (!hasGpsCoordinates) {
+        window.addEventListener("load", function() {
+            setTimeout(
+                requestCurrentLocation,
+                300
+            );
+        });
+    }
+</script>
+
+{% endblock %}

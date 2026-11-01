@@ -1,0 +1,95 @@
+.stats-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:25px;
+
+    margin-bottom:30px;
+
+}
+
+.stat-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.06);
+
+    transition:.35s;
+
+}
+
+.stat-card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+.stat-icon{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:18px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:28px;
+
+    color:white;
+
+}
+
+.weather{
+
+    background:#03A9F4;
+
+}
+
+.prediction{
+
+    background:#4CAF50;
+
+}
+
+.healthy{
+
+    background:#8BC34A;
+
+}
+
+.ai{
+
+    background:#673AB7;
+
+}
+
+.stat-card h2{
+
+    font-size:32px;
+
+}
+
+.stat-card p{
+
+    color:#777;
+
+    margin-top:6px;
+
+}
